@@ -305,22 +305,42 @@ LD_MONOLITH_PATH = os.getenv("LD_MONOLITH_PATH", "monolith")
 LD_MONOLITH_OPTIONS = os.getenv("LD_MONOLITH_OPTIONS", "-a -v -s")
 
 # Huey task queue
-HUEY = {
-    "huey_class": "huey.RedisHuey" if LD_DB_ENGINE == "postgres" else "huey.SqliteHuey",
-    "filename": os.path.join(BASE_DIR, "data", "tasks.sqlite3"),
-    "immediate": False,
-    "results": False,
-    "store_none": False,
-    "utc": True,
-    "consumer": {
-        "workers": 2,
-        "worker_type": "thread",
-        "initial_delay": 5,
-        "backoff": 1.15,
-        "max_delay": 10,
-        "scheduler_interval": 10,
-        "periodic": True,
-        "check_worker_health": True,
-        "health_check_interval": 10,
-    },
-}
+if LD_DB_ENGINE == "postgres":
+    HUEY = {
+        "huey_class": "huey.RedisHuey",
+        "immediate": False,
+        "results": False,
+        "store_none": False,
+        "utc": True,
+        "consumer": {
+            "workers": 2,
+            "worker_type": "thread",
+            "initial_delay": 5,
+            "backoff": 1.15,
+            "max_delay": 10,
+            "scheduler_interval": 10,
+            "periodic": True,
+            "check_worker_health": True,
+            "health_check_interval": 10,
+        },
+    }
+else:
+    HUEY = {
+        "huey_class": "huey.SqliteHuey",
+        "filename": os.path.join(BASE_DIR, "data", "tasks.sqlite3"),
+        "immediate": False,
+        "results": False,
+        "store_none": False,
+        "utc": True,
+        "consumer": {
+            "workers": 2,
+            "worker_type": "thread",
+            "initial_delay": 5,
+            "backoff": 1.15,
+            "max_delay": 10,
+            "scheduler_interval": 10,
+            "periodic": True,
+            "check_worker_health": True,
+            "health_check_interval": 10,
+        },
+    }
