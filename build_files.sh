@@ -25,5 +25,7 @@ python3.12 manage.py generate_secret_key
 python3.12 manage.py migrate
 # Create initial superuser if defined in options / environment variables
 python3.12 manage.py create_initial_superuser
+# # Migrate legacy background tasks to Huey. Not supported with postgres.
+# python3.12 manage.py migrate_tasks
 # collect static files
 python3.12 manage.py collectstatic --no-input --clear

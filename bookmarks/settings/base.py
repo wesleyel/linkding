@@ -218,6 +218,8 @@ LD_DB_PORT = os.getenv("LD_DB_PORT", None)
 LD_DB_OPTIONS = json.loads(os.getenv("LD_DB_OPTIONS") or "{}")
 
 if LD_DB_ENGINE == "postgres":
+    # Redis connection settings
+    LD_REDIS_URL = os.getenv("LD_REDIS_URL", None)
     default_database = {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": LD_DB_DATABASE,
@@ -226,6 +228,25 @@ if LD_DB_ENGINE == "postgres":
         "HOST": LD_DB_HOST,
         "PORT": LD_DB_PORT,
         "OPTIONS": LD_DB_OPTIONS,
+    }
+    HUEY = {
+        "huey_class": "huey.RedisHuey",
+        "url": LD_REDIS_URL,
+        "immediate": False,
+        "results": False,
+        "store_none": False,
+        "utc": True,
+        "consumer": {
+            "workers": 2,
+            "worker_type": "thread",
+            "initial_delay": 5,
+            "backoff": 1.15,
+            "max_delay": 10,
+            "scheduler_interval": 10,
+            "periodic": True,
+            "check_worker_health": True,
+            "health_check_interval": 10,
+        },
     }
 else:
     default_database = {
@@ -237,6 +258,25 @@ else:
         # memory leak, so try to counter that by making connections indefinitely
         # persistent.
         "CONN_MAX_AGE": None,
+    }
+    HUEY = {
+        "huey_class": "huey.SqliteHuey",
+        "filename": os.path.join(BASE_DIR, "data", "tasks.sqlite3"),
+        "immediate": False,
+        "results": False,
+        "store_none": False,
+        "utc": True,
+        "consumer": {
+            "workers": 2,
+            "worker_type": "thread",
+            "initial_delay": 5,
+            "backoff": 1.15,
+            "max_delay": 10,
+            "scheduler_interval": 10,
+            "periodic": True,
+            "check_worker_health": True,
+            "health_check_interval": 10,
+        },
     }
 
 DATABASES = {"default": default_database}
@@ -303,44 +343,3 @@ LD_SINGLEFILE_TIMEOUT_SEC = float(os.getenv("LD_SINGLEFILE_TIMEOUT_SEC", 120))
 # it turns out to be useful in the future.
 LD_MONOLITH_PATH = os.getenv("LD_MONOLITH_PATH", "monolith")
 LD_MONOLITH_OPTIONS = os.getenv("LD_MONOLITH_OPTIONS", "-a -v -s")
-
-# Huey task queue
-if LD_DB_ENGINE == "postgres":
-    HUEY = {
-        "huey_class": "huey.RedisHuey",
-        "immediate": False,
-        "results": False,
-        "store_none": False,
-        "utc": True,
-        "consumer": {
-            "workers": 2,
-            "worker_type": "thread",
-            "initial_delay": 5,
-            "backoff": 1.15,
-            "max_delay": 10,
-            "scheduler_interval": 10,
-            "periodic": True,
-            "check_worker_health": True,
-            "health_check_interval": 10,
-        },
-    }
-else:
-    HUEY = {
-        "huey_class": "huey.SqliteHuey",
-        "filename": os.path.join(BASE_DIR, "data", "tasks.sqlite3"),
-        "immediate": False,
-        "results": False,
-        "store_none": False,
-        "utc": True,
-        "consumer": {
-            "workers": 2,
-            "worker_type": "thread",
-            "initial_delay": 5,
-            "backoff": 1.15,
-            "max_delay": 10,
-            "scheduler_interval": 10,
-            "periodic": True,
-            "check_worker_health": True,
-            "health_check_interval": 10,
-        },
-    }

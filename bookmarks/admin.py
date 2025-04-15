@@ -34,15 +34,24 @@ class TaskPaginator(Paginator):
             self,
         )
 
-    # Copied from Huey's SqliteStorage with some modifications to allow pagination
+    # Support both SqliteStorage and RedisStorage
     def enqueued_items(self, limit, offset):
         to_bytes = lambda b: bytes(b) if not isinstance(b, bytes) else b
-        sql = "select data from task where queue=? order by priority desc, id limit ? offset ?"
-        params = (huey.storage.name, limit, offset)
-
-        serialized_tasks = [
-            to_bytes(i) for i, in huey.storage.sql(sql, params, results=True)
-        ]
+        
+        # Check if the storage supports the sql method (SQLite storage)
+        if hasattr(huey.storage, 'sql'):
+            # Use SQLite storage implementation
+            sql = "select data from task where queue=? order by priority desc, id limit ? offset ?"
+            params = (huey.storage.name, limit, offset)
+            serialized_tasks = [
+                to_bytes(i) for i, in huey.storage.sql(sql, params, results=True)
+            ]
+        else:
+            # Use Redis storage implementation
+            # Get all items in the Redis queue
+            all_items = huey.storage.enqueued_items(limit + offset)
+            serialized_tasks = all_items[offset:offset + limit]
+            
         return [huey.deserialize_task(task) for task in serialized_tasks]
 
 
