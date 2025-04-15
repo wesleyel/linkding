@@ -39,6 +39,8 @@ The name comes from:
 
 ## Getting Started
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fwesleyel%2Flinkding&env=LD_SUPERUSER_NAME,LD_SUPERUSER_PASSWORD,LD_DB_ENGINE,LD_DB_HOST,LD_DB_PORT,LD_DB_USER,LD_DB_PASSWORD,LD_DB_DATABASE&envDescription=LD_DB_ENGINE%20should%20be%20postgres&project-name=selfhosted-linkding&repository-name=selfhosted-linkding)
+
 The following links help you to get started with linkding:
 - [Install linkding on your own server](https://linkding.link/installation) or [check managed hosting options](https://linkding.link/managed-hosting)
 - [Install the browser extension](https://linkding.link/browser-extension)

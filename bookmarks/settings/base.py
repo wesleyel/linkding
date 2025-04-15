@@ -112,7 +112,7 @@ LOGOUT_REDIRECT_URL = "/" + LD_CONTEXT_PATH + "login"
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = os.getenv("TZ", "UTC")
+TIME_ZONE = "Asia/Shanghai" #os.getenv("TZ", "UTC")
 
 USE_I18N = True
 
@@ -126,7 +126,7 @@ USE_TZ = True
 STATIC_URL = "/" + LD_CONTEXT_PATH + "static/"
 
 # Collect static files in static folder
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles", "static")
 
 # REST framework
 REST_FRAMEWORK = {
@@ -157,28 +157,6 @@ LD_DISABLE_BACKGROUND_TASKS = os.getenv("LD_DISABLE_BACKGROUND_TASKS", False) in
     "true",
     "1",
 )
-
-# Huey task queue
-HUEY = {
-    "huey_class": "huey.SqliteHuey",
-    "filename": os.path.join(BASE_DIR, "data", "tasks.sqlite3"),
-    "immediate": False,
-    "results": False,
-    "store_none": False,
-    "utc": True,
-    "consumer": {
-        "workers": 2,
-        "worker_type": "thread",
-        "initial_delay": 5,
-        "backoff": 1.15,
-        "max_delay": 10,
-        "scheduler_interval": 10,
-        "periodic": True,
-        "check_worker_health": True,
-        "health_check_interval": 10,
-    },
-}
-
 
 # Enable OICD support if configured
 LD_ENABLE_OIDC = os.getenv("LD_ENABLE_OIDC", False) in (True, "True", "true", "1")
@@ -325,3 +303,24 @@ LD_SINGLEFILE_TIMEOUT_SEC = float(os.getenv("LD_SINGLEFILE_TIMEOUT_SEC", 120))
 # it turns out to be useful in the future.
 LD_MONOLITH_PATH = os.getenv("LD_MONOLITH_PATH", "monolith")
 LD_MONOLITH_OPTIONS = os.getenv("LD_MONOLITH_OPTIONS", "-a -v -s")
+
+# Huey task queue
+HUEY = {
+    "huey_class": "huey.RedisHuey" if LD_DB_ENGINE == "postgres" else "huey.SqliteHuey",
+    "filename": os.path.join(BASE_DIR, "data", "tasks.sqlite3"),
+    "immediate": False,
+    "results": False,
+    "store_none": False,
+    "utc": True,
+    "consumer": {
+        "workers": 2,
+        "worker_type": "thread",
+        "initial_delay": 5,
+        "backoff": 1.15,
+        "max_delay": 10,
+        "scheduler_interval": 10,
+        "periodic": True,
+        "check_worker_health": True,
+        "health_check_interval": 10,
+    },
+}
